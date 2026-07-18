@@ -1,0 +1,87 @@
+package com.duoc.cursos.bff.service;
+
+import com.duoc.cursos.bff.dto.ArchivoResumenResponseDTO;
+import com.duoc.cursos.bff.dto.DetalleInscripcionResumenDTO;
+import com.duoc.cursos.bff.dto.InscripcionResumenDTO;
+import com.duoc.cursos.bff.exception.ArchivoLocalException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class ResumenArchivoServiceTest {
+
+    @Mock
+    private InscripcionService inscripcionService;
+
+    @TempDir
+    Path tempDir;
+
+    @Test
+    void debeGenerarArchivoLocalDeResumen() throws Exception {
+        when(inscripcionService.obtenerPorId(1L)).thenReturn(new InscripcionResumenDTO(
+                1L,
+                10L,
+                "Francisco Henriquez",
+                "francisco@email.com",
+                LocalDateTime.of(2026, 6, 1, 10, 0),
+                List.of(
+                        new DetalleInscripcionResumenDTO(10L, "Spring Boot Basico", new BigDecimal("50000")),
+                        new DetalleInscripcionResumenDTO(20L, "Docker Basico", new BigDecimal("40000"))
+                ),
+                new BigDecimal("90000"),
+                "REGISTRADA"
+        ));
+
+        ResumenArchivoService resumenArchivoService =
+                new ResumenArchivoService(inscripcionService, tempDir.toString());
+
+        ArchivoResumenResponseDTO respuesta = resumenArchivoService.generarArchivo(1L);
+
+        Path archivoGenerado = tempDir.resolve("resumen-1.txt");
+        assertThat(Files.exists(archivoGenerado)).isTrue();
+        assertThat(respuesta.getNombreArchivo()).isEqualTo("resumen-1.txt");
+        assertThat(respuesta.getRutaLocal()).endsWith("resumen-1.txt");
+        assertThat(Files.readString(archivoGenerado))
+                .contains("Numero de inscripcion: 1")
+                .contains("Nombre del estudiante: Francisco Henriquez")
+                .contains("Spring Boot Basico")
+                .contains("Docker Basico")
+                .contains("Total a pagar: 90000");
+    }
+
+    @Test
+    void debeRetornarErrorClaroCuandoNoPuedeGenerarArchivoLocal() throws Exception {
+        Path rutaArchivo = Files.createFile(tempDir.resolve("salida-bloqueada.txt"));
+
+        when(inscripcionService.obtenerPorId(1L)).thenReturn(new InscripcionResumenDTO(
+                1L,
+                10L,
+                "Francisco Henriquez",
+                "francisco@email.com",
+                LocalDateTime.of(2026, 6, 1, 10, 0),
+                List.of(new DetalleInscripcionResumenDTO(10L, "Spring Boot Basico", new BigDecimal("50000"))),
+                new BigDecimal("50000"),
+                "REGISTRADA"
+        ));
+
+        ResumenArchivoService resumenArchivoService =
+                new ResumenArchivoService(inscripcionService, rutaArchivo.toString());
+
+        assertThatThrownBy(() -> resumenArchivoService.generarArchivo(1L))
+                .isInstanceOf(ArchivoLocalException.class)
+                .hasMessage("No fue posible generar el archivo local del resumen");
+    }
+}

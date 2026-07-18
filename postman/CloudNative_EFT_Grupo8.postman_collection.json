@@ -1,0 +1,212 @@
+{
+  "info": {
+    "name": "CloudNative_EFT_Grupo8",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "base_url_bff", "value": "{{base_url_bff}}"},
+    {"key": "base_url_consumer", "value": "{{base_url_consumer}}"},
+    {"key": "api_gateway_url", "value": "{{api_gateway_url}}"}
+  ],
+  "item": [
+    {
+      "name": "00 - Autenticacion",
+      "item": [
+        {
+          "name": "Configurar Tokens Manualmente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url_bff}}/api/health",
+            "description": "Solicitar los JWT reales en Azure AD B2C y guardarlos en access_token_profesor y access_token_estudiante."
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 - Health",
+      "item": [
+        {
+          "name": "Health BFF",
+          "event": [{"listen": "test", "script": {"exec": ["pm.test('status 200', function () { pm.response.to.have.status(200); });"]}}],
+          "request": {"method": "GET", "url": "{{base_url_bff}}/api/health"}
+        }
+      ]
+    },
+    {
+      "name": "02 - Cursos",
+      "item": [
+        {
+          "name": "Crear Curso",
+          "event": [{"listen": "test", "script": {"exec": ["pm.test('status 201', function () { pm.response.to.have.status(201); });", "pm.environment.set('curso_id', pm.response.json().id);"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token_profesor}}"}],
+            "body": {"mode": "raw", "raw": "{\n  \"nombre\": \"Spring Boot Basico\",\n  \"descripcion\": \"Curso introductorio\",\n  \"costo\": 50000,\n  \"activo\": true\n}", "options": {"raw": {"language": "json"}}},
+            "url": "{{base_url_bff}}/api/cursos"
+          }
+        },
+        {
+          "name": "Listar Cursos",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{access_token_estudiante}}"}], "url": "{{base_url_bff}}/api/cursos"}
+        }
+      ]
+    },
+    {
+      "name": "03 - Estudiantes",
+      "item": [
+        {
+          "name": "Crear Estudiante",
+          "event": [{"listen": "test", "script": {"exec": ["pm.test('status 201', function () { pm.response.to.have.status(201); });", "pm.environment.set('estudiante_id', pm.response.json().id);"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token_profesor}}"}],
+            "body": {"mode": "raw", "raw": "{\n  \"nombre\": \"Francisco Henriquez\",\n  \"correo\": \"francisco@duocuc.cl\",\n  \"identificadorIdaas\": \"francisco@duocuc.cl\",\n  \"activo\": true\n}", "options": {"raw": {"language": "json"}}},
+            "url": "{{base_url_bff}}/api/estudiantes"
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Inscripciones",
+      "item": [
+        {
+          "name": "Crear Inscripcion",
+          "event": [{"listen": "test", "script": {"exec": ["pm.test('status 201', function () { pm.response.to.have.status(201); });", "pm.environment.set('inscripcion_id', pm.response.json().inscripcion.inscripcionId);"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token_estudiante}}"}],
+            "body": {"mode": "raw", "raw": "{\n  \"estudianteId\": {{estudiante_id}},\n  \"cursosIds\": [{{curso_id}}]\n}", "options": {"raw": {"language": "json"}}},
+            "url": "{{base_url_bff}}/api/inscripciones"
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Contenidos EFS y S3",
+      "item": [
+        {
+          "name": "Subir Contenido",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token_profesor}}"}],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "titulo", "value": "Clase 1", "type": "text"},
+                {"key": "descripcion", "value": "Apuntes iniciales", "type": "text"},
+                {"key": "archivo", "type": "file", "src": []}
+              ]
+            },
+            "url": "{{base_url_bff}}/api/cursos/{{curso_id}}/contenidos"
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Examenes",
+      "item": [
+        {
+          "name": "Crear Examen",
+          "event": [{"listen": "test", "script": {"exec": ["pm.environment.set('examen_id', pm.response.json().id);"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token_profesor}}"}],
+            "body": {"mode": "raw", "raw": "{\n  \"titulo\": \"Evaluacion 1\",\n  \"descripcion\": \"Examen inicial\",\n  \"preguntasJson\": \"[{\\\"pregunta\\\":\\\"Que es Spring Boot?\\\"}]\",\n  \"puntajeMaximo\": 100,\n  \"activo\": true\n}", "options": {"raw": {"language": "json"}}},
+            "url": "{{base_url_bff}}/api/cursos/{{curso_id}}/examenes"
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Intentos y calificaciones",
+      "item": [
+        {
+          "name": "Registrar Intento",
+          "event": [{"listen": "test", "script": {"exec": ["pm.environment.set('intento_id', pm.response.json().id);"]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token_estudiante}}"}],
+            "body": {"mode": "raw", "raw": "{\n  \"respuestasJson\": \"{\\\"respuesta\\\":\\\"Spring Boot simplifica la configuracion\\\"}\"\n}", "options": {"raw": {"language": "json"}}},
+            "url": "{{base_url_bff}}/api/examenes/{{examen_id}}/intentos"
+          }
+        },
+        {
+          "name": "Calificar Intento",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token_profesor}}"}],
+            "body": {"mode": "raw", "raw": "{\n  \"puntajeObtenido\": 85,\n  \"nota\": 6.2,\n  \"observacion\": \"Buen desarrollo\"\n}", "options": {"raw": {"language": "json"}}},
+            "url": "{{base_url_bff}}/api/intentos/{{intento_id}}/calificacion"
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - RabbitMQ Productor",
+      "item": [
+        {
+          "name": "Enviar Evento de Inscripcion",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token_profesor}}"}],
+            "url": "{{base_url_bff}}/api/inscripciones/{{inscripcion_id}}/enviar-mq"
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - RabbitMQ BFF",
+      "item": [
+        {
+          "name": "Consumir via BFF",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token_profesor}}"}],
+            "url": "{{base_url_bff}}/api/bff/eventos/consumir?cantidad=1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - RabbitMQ Consumidor",
+      "item": [
+        {
+          "name": "Consultar Procesados",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token_profesor}}"}],
+            "url": "{{base_url_consumer}}/api/mq/procesados"
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Pruebas de Seguridad",
+      "item": [
+        {
+          "name": "Health sin Token",
+          "request": {"method": "GET", "url": "{{base_url_bff}}/api/health"}
+        },
+        {
+          "name": "Crear Curso con Estudiante",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{access_token_estudiante}}"}],
+            "body": {"mode": "raw", "raw": "{\n  \"nombre\": \"Curso no autorizado\",\n  \"descripcion\": \"Debe devolver 403\",\n  \"costo\": 1,\n  \"activo\": true\n}", "options": {"raw": {"language": "json"}}},
+            "url": "{{base_url_bff}}/api/cursos"
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - API Gateway",
+      "item": [
+        {
+          "name": "Health via API Gateway",
+          "request": {"method": "GET", "url": "{{api_gateway_url}}/api/health"}
+        }
+      ]
+    }
+  ]
+}

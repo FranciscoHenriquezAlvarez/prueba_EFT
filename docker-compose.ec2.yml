@@ -1,0 +1,83 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - cloudnative-net
+
+  ms-cursos-bff:
+    image: ${CURSOS_BFF_IMAGE}
+    container_name: ms-cursos-bff
+    restart: unless-stopped
+    depends_on:
+      - rabbitmq
+    ports:
+      - "8080:8080"
+    environment:
+      SERVER_PORT: 8080
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      ORACLE_WALLET_PATH: /app/wallet
+      JWT_ISSUER_URI: ${JWT_ISSUER_URI}
+      JWT_AUDIENCE: ${JWT_AUDIENCE}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASS: ${RABBITMQ_PASS:-guest}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
+      JWT_JWK_SET_URI: ${JWT_JWK_SET_URI}
+      RESUMENES_PATH: ${RESUMENES_PATH:-/app/efs/resumenes}
+      CONTENIDOS_EFS_PATH: ${CONTENIDOS_EFS_PATH:-/app/efs/contenidos}
+      EVENTOS_CONSUMIDOR_URL: ${EVENTOS_CONSUMIDOR_URL:-http://ms-eventos-academicos-consumidor:8081}
+    volumes:
+      - /mnt/efs:/app/efs
+      - ${ORACLE_WALLET_PATH_HOST:-/home/ec2-user/wallets/Wallet_cloudnativeapp}:/app/wallet:ro
+    networks:
+      - cloudnative-net
+
+  ms-eventos-academicos-consumidor:
+    image: ${EVENTOS_ACADEMICOS_CONSUMIDOR_IMAGE}
+    container_name: ms-eventos-academicos-consumidor
+    restart: unless-stopped
+    depends_on:
+      - rabbitmq
+    ports:
+      - "8081:8081"
+    environment:
+      SERVER_PORT: 8081
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      ORACLE_WALLET_PATH: /app/wallet
+      JWT_ISSUER_URI: ${JWT_ISSUER_URI}
+      JWT_AUDIENCE: ${JWT_AUDIENCE}
+      JWT_JWK_SET_URI: ${JWT_JWK_SET_URI}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASS: ${RABBITMQ_PASS:-guest}
+    volumes:
+      - ${ORACLE_WALLET_PATH_HOST:-/home/ec2-user/wallets/Wallet_cloudnativeapp}:/app/wallet:ro
+    networks:
+      - cloudnative-net
+
+networks:
+  cloudnative-net:
+    name: cloudnative-net
+
+volumes:
+  rabbitmq-data:
