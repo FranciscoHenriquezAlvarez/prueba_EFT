@@ -190,10 +190,14 @@ jobs:
             docker compose -f docker-compose.ec2.yml up -d --remove-orphans
             docker compose -f docker-compose.ec2.yml ps
             echo "Esperando inicio de los microservicios..."
-            sleep 30
+            sleep 60
 
             echo "Validando health del BFF..."
-            if ! curl --fail --retry 10 --retry-delay 5 \
+            if ! curl --fail \
+            --retry 12 \
+            --retry-delay 5 \
+            --retry-all-errors \
+            --connect-timeout 5 \
               http://localhost:8080/api/health; then
               echo "ERROR: ms-cursos-bff no responde"
               docker compose -f docker-compose.ec2.yml logs \
@@ -202,7 +206,11 @@ jobs:
             fi
 
             echo "Validando health del consumidor..."
-            if ! curl --fail --retry 10 --retry-delay 5 \
+            if ! curl --fail \
+            --retry 12 \
+            --retry-delay 5 \
+            --retry-all-errors \
+            --connect-timeout 5 \
               http://localhost:8081/api/health; then
               echo "ERROR: ms-eventos-academicos-consumidor no responde"
               docker compose -f docker-compose.ec2.yml logs \
