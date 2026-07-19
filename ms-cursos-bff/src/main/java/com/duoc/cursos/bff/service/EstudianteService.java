@@ -17,6 +17,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
+// Servicio que administra estudiantes y su relacion con IDaaS.
 public class EstudianteService {
 
     private final EstudianteRepository estudianteRepository;
@@ -37,6 +38,7 @@ public class EstudianteService {
         return convertirAResponseDTO(obtenerEntidad(id));
     }
 
+    // Registra al estudiante para utilizarlo en los flujos academicos.
     public EstudianteResponseDTO guardar(EstudianteRequestDTO estudianteRequestDTO) {
         validarDuplicados(null, estudianteRequestDTO);
         return convertirAResponseDTO(estudianteRepository.save(aplicarDatos(new Estudiante(), estudianteRequestDTO)));
@@ -53,6 +55,7 @@ public class EstudianteService {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Estudiante no encontrado: " + id));
     }
 
+    // Relaciona el token autenticado con un estudiante ya persistido.
     public Estudiante resolverDesdeJwt(Jwt jwt) {
         if (jwt == null) {
             throw new ResponseStatusException(FORBIDDEN, "El token JWT es obligatorio para identificar al estudiante");
@@ -79,6 +82,7 @@ public class EstudianteService {
         }
     }
 
+    // Evita repetir correo o identificador antes de guardar el estudiante.
     private void validarDuplicados(Long id, EstudianteRequestDTO estudianteRequestDTO) {
         boolean correoDuplicado = id == null
                 ? estudianteRepository.existsByCorreoIgnoreCase(estudianteRequestDTO.getCorreo())

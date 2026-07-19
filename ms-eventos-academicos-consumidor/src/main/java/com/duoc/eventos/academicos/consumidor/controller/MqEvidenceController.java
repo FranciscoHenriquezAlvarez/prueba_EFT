@@ -42,11 +42,13 @@ public class MqEvidenceController {
     }
 
     @PutMapping("/modo-consumo")
+    // Alterna entre listener automatico y consumo manual controlado.
     public ConsumptionModeResponse cambiarModoConsumo(@RequestParam boolean automatico) {
         return eventoAcademicoConsumerService.cambiarModoConsumo(automatico);
     }
 
     @PostMapping("/consumir")
+    // Ejecuta una lectura bajo demanda cuando el listener esta detenido.
     public ResponseEntity<ManualConsumptionResponse> consumirManualmente(
             @RequestParam(defaultValue = "1") int cantidad) {
         ManualConsumptionResponse response = eventoAcademicoConsumerService.consumirManualmente(cantidad);

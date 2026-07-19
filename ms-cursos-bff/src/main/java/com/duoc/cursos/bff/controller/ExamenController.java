@@ -26,6 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping
+// Controlador REST que concentra examenes, intentos y calificaciones.
 public class ExamenController {
 
     private final ExamenService examenService;
@@ -59,6 +60,7 @@ public class ExamenController {
     }
 
     @PostMapping("/api/examenes/{examenId}/intentos")
+    // Permite que el estudiante envie sus respuestas para el examen.
     public ResponseEntity<IntentoExamenResponseDTO> crearIntento(@PathVariable Long examenId,
                                                                  @Valid @RequestBody IntentoExamenRequestDTO requestDTO,
                                                                  @AuthenticationPrincipal Jwt jwt) {
@@ -82,6 +84,7 @@ public class ExamenController {
     }
 
     @PutMapping("/api/intentos/{intentoId}/calificacion")
+    // Registra la calificacion asignada por el profesor.
     public ResponseEntity<IntentoExamenResponseDTO> calificar(@PathVariable Long intentoId,
                                                               @Valid @RequestBody CalificacionRequestDTO requestDTO) {
         return ResponseEntity.ok(intentoExamenService.calificar(intentoId, requestDTO));

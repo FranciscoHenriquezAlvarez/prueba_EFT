@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 @Service
+// Servicio que registra inscripciones y consolida su resumen academico.
 public class InscripcionService {
 
     private final InscripcionRepository inscripcionRepository;
@@ -50,6 +51,7 @@ public class InscripcionService {
         return convertirAResumenDTO(inscripcion);
     }
 
+    // Valida estudiante y cursos antes de calcular el total de la inscripcion.
     public InscripcionResumenDTO guardar(InscripcionRequestDTO inscripcionRequestDTO) {
         Estudiante estudiante = estudianteRepository.findById(inscripcionRequestDTO.getEstudianteId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Estudiante no encontrado"));
@@ -87,6 +89,7 @@ public class InscripcionService {
         return inscripcionRepository.existsCursoInscrito(estudianteId, cursoId);
     }
 
+    // Elimina ids repetidos y descarta cursos inexistentes o inactivos.
     private List<Curso> obtenerCursosSolicitados(List<Long> cursosIds) {
         if (cursosIds == null || cursosIds.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Debe enviar al menos un curso");

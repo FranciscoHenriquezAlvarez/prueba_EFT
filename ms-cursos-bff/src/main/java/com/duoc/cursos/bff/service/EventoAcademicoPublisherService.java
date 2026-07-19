@@ -17,6 +17,7 @@ import java.util.UUID;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
+// Servicio que publica eventos academicos persistentes en RabbitMQ.
 public class EventoAcademicoPublisherService {
 
     private final RabbitTemplate rabbitTemplate;
@@ -37,6 +38,7 @@ public class EventoAcademicoPublisherService {
         this.routingKey = routingKey;
     }
 
+    // Emite el evento base de la inscripcion con los ids academicos disponibles.
     public EventoAcademicoResponseDTO publicarInscripcionCreada(Long inscripcionId) {
         Inscripcion inscripcion = inscripcionRepository.findById(inscripcionId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Inscripcion no encontrada: " + inscripcionId));
@@ -72,6 +74,7 @@ public class EventoAcademicoPublisherService {
         publicarEventoIntento(intentoId, "CALIFICACION_REGISTRADA");
     }
 
+    // Reutiliza la estructura para intentos y calificaciones enviadas por MQ.
     private void publicarEventoIntento(Long intentoId, String tipoEvento) {
         IntentoExamen intento = intentoExamenRepository.findById(intentoId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Intento no encontrado: " + intentoId));

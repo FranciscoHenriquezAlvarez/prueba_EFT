@@ -24,6 +24,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
+// Servicio que administra contenidos y controla el acceso segun la inscripcion.
 public class ContenidoCursoService {
 
     private final ContenidoCursoRepository contenidoCursoRepository;
@@ -47,6 +48,7 @@ public class ContenidoCursoService {
         this.contenidosPath = Paths.get(contenidosPath);
     }
 
+    // Guarda temporalmente el contenido y registra su ubicacion academica.
     public ContenidoCursoResponseDTO crear(Long cursoId, String titulo, String descripcion, MultipartFile archivo) {
         if (archivo == null || archivo.isEmpty()) {
             throw new ResponseStatusException(BAD_REQUEST, "Debe adjuntar un archivo no vacio");
@@ -119,6 +121,7 @@ public class ContenidoCursoService {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Contenido no encontrado: " + contenidoId));
     }
 
+    // Verifica que el estudiante este inscrito antes de exponer el contenido.
     private void validarAcceso(Long cursoId, Jwt jwt, boolean profesor) {
         if (profesor) {
             return;
@@ -129,6 +132,7 @@ public class ContenidoCursoService {
         }
     }
 
+    // Persiste una copia temporal en EFS antes de subir el contenido a S3.
     private Path guardarArchivoTemporal(Long cursoId, MultipartFile archivo) {
         try {
             Files.createDirectories(contenidosPath);

@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Service
+// Servicio que genera el resumen textual asociado a cada inscripcion.
 public class ResumenArchivoService {
 
     private final InscripcionService inscripcionService;
@@ -38,6 +39,7 @@ public class ResumenArchivoService {
         );
     }
 
+    // Reutiliza el archivo existente cuando ya fue generado en EFS.
     public Path obtenerArchivoLocalOGenerar(Long inscripcionId) {
         inscripcionService.obtenerPorId(inscripcionId);
 
@@ -49,6 +51,7 @@ public class ResumenArchivoService {
         return regenerarArchivo(inscripcionId);
     }
 
+    // Reconstruye el resumen con el estado actual de la inscripcion.
     public Path regenerarArchivo(Long inscripcionId) {
         InscripcionResumenDTO resumen = inscripcionService.obtenerPorId(inscripcionId);
 

@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Service
+// Servicio que administra el almacenamiento permanente de archivos en S3.
 public class S3StorageService {
 
     private final S3Client s3Client;
@@ -34,6 +35,7 @@ public class S3StorageService {
         this.bucketName = bucketName;
     }
 
+    // Construye la clave del resumen y publica el archivo en el bucket.
     public ArchivoResumenResponseDTO subirArchivo(Long inscripcionId, Path archivo) {
         String key = construirKey(inscripcionId);
         subirArchivo(archivo, key, "text/plain");
@@ -48,6 +50,7 @@ public class S3StorageService {
         );
     }
 
+    // Guarda contenidos del curso usando una clave separada del resumen academico.
     public ArchivoResumenResponseDTO subirContenidoCurso(Long cursoId, Long contenidoId, Path archivo, String nombreArchivo,
                                                          String contentType) {
         String key = construirKeyContenido(cursoId, contenidoId, nombreArchivo);
@@ -113,6 +116,7 @@ public class S3StorageService {
         return descargarArchivoPorKey(construirKey(inscripcionId));
     }
 
+    // Descarga el objeto solo cuando la clave ya existe en el bucket.
     public byte[] descargarArchivoPorKey(String key) {
         validarBucketConfigurado();
 
@@ -193,6 +197,7 @@ public class S3StorageService {
         }
     }
 
+    // Construye la clave utilizada para almacenar el contenido de un curso.
     public String construirKeyContenido(Long cursoId, Long contenidoId, String nombreArchivo) {
         return "cursos/" + cursoId + "/contenidos/" + contenidoId + "/" + nombreArchivo;
     }

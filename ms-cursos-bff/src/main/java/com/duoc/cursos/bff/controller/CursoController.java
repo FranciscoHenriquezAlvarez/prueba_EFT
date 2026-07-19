@@ -19,6 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/cursos")
+// Controlador REST que expone las operaciones basicas de cursos.
 public class CursoController {
 
     private final CursoService cursoService;
@@ -33,6 +34,7 @@ public class CursoController {
     }
 
     @PostMapping
+    // Registra cursos que luego participan en inscripciones y examenes.
     public ResponseEntity<CursoResponseDTO> crear(@Valid @RequestBody CursoRequestDTO cursoRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(cursoService.guardar(cursoRequestDTO));
     }

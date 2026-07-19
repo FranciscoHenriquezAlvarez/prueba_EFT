@@ -24,6 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping
+// Controlador REST para publicar, consultar y descargar contenidos de curso.
 public class ContenidoCursoController {
 
     private final ContenidoCursoService contenidoCursoService;
@@ -33,6 +34,7 @@ public class ContenidoCursoController {
     }
 
     @PostMapping("/api/cursos/{cursoId}/contenidos")
+    // Registra el contenido asociado a un curso y su archivo adjunto.
     public ResponseEntity<ContenidoCursoResponseDTO> crear(@PathVariable Long cursoId,
                                                            @RequestParam String titulo,
                                                            @RequestParam String descripcion,
@@ -57,6 +59,7 @@ public class ContenidoCursoController {
     }
 
     @GetMapping("/api/contenidos/{contenidoId}/descargar")
+    // Resuelve el acceso y devuelve el archivo almacenado para el curso.
     public ResponseEntity<Resource> descargar(@PathVariable Long contenidoId,
                                               Authentication authentication,
                                               @AuthenticationPrincipal Jwt jwt) {

@@ -20,11 +20,13 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 @Configuration
+// Configuracion de seguridad para validar JWT y proteger los endpoints.
 public class SecurityConfig {
 
     private static final String ROLE_CLAIM = "extension_consultaRole";
 
     @Bean
+    // Permite el health sin autenticacion y protege el resto segun el rol recibido.
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -52,12 +54,14 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // Usa el claim de roles esperado por Azure AD para Spring Security.
     private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(this::extractAuthorities);
         return converter;
     }
 
+    // Convierte los roles del token en authorities con y sin prefijo ROLE_.
     private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
         Set<String> roles = new LinkedHashSet<>();
         addClaimValues(jwt.getClaim(ROLE_CLAIM), roles);
@@ -70,6 +74,7 @@ public class SecurityConfig {
                 .toList();
     }
 
+    // Acepta el claim como lista o como texto separado por espacios o comas.
     private void addClaimValues(Object claimValue, Set<String> roles) {
         if (claimValue instanceof Collection<?> collection) {
             collection.stream()

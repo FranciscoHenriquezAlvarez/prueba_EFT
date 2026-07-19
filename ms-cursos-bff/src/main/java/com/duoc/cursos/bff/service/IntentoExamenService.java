@@ -20,6 +20,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
+// Servicio que registra intentos y calificaciones de examenes.
 public class IntentoExamenService {
 
     private final IntentoExamenRepository intentoExamenRepository;
@@ -40,6 +41,7 @@ public class IntentoExamenService {
         this.eventoAcademicoPublisherService = eventoAcademicoPublisherService;
     }
 
+    // Valida que el estudiante este inscrito antes de registrar el intento.
     public IntentoExamenResponseDTO crear(Long examenId, IntentoExamenRequestDTO requestDTO, Jwt jwt) {
         Examen examen = examenService.obtenerEntidad(examenId);
         Estudiante estudiante = estudianteService.resolverDesdeJwt(jwt);
@@ -75,6 +77,7 @@ public class IntentoExamenService {
                 .toList();
     }
 
+    // Controla el puntaje y marca el intento como calificado.
     public IntentoExamenResponseDTO calificar(Long intentoId, CalificacionRequestDTO requestDTO) {
         IntentoExamen intento = intentoExamenRepository.findById(intentoId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Intento no encontrado: " + intentoId));

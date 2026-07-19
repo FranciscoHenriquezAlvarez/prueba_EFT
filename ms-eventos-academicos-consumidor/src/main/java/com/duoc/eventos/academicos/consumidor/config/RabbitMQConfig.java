@@ -34,16 +34,19 @@ public class RabbitMQConfig {
     private String errorRoutingKey;
 
     @Bean
+    // Configura la cola principal como persistente para no perder eventos pendientes.
     Queue eventosAcademicosQueue() {
         return new Queue(queueName, true);
     }
 
     @Bean
+    // Configura la cola secundaria donde quedan los mensajes con error.
     Queue eventosAcademicosErrorQueue() {
         return new Queue(errorQueueName, true);
     }
 
     @Bean
+    // Declara el exchange usado por los eventos academicos del sistema.
     DirectExchange eventosAcademicosExchange() {
         return new DirectExchange(exchangeName, true, false);
     }
@@ -65,6 +68,7 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    // Publica mensajes persistentes y serializados como JSON.
     RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, MessageConverter rabbitMessageConverter) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(rabbitMessageConverter);
@@ -76,6 +80,7 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    // Comparte el convertidor JSON con el listener automatico del consumidor.
     SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
             ConnectionFactory connectionFactory,
             MessageConverter rabbitMessageConverter) {

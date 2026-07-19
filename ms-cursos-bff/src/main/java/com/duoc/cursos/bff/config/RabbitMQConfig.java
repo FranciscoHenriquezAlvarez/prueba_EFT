@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+// Configuracion de RabbitMQ para publicar eventos academicos desde el BFF.
 public class RabbitMQConfig {
 
     @Value("${app.rabbitmq.queue}")
@@ -32,16 +33,19 @@ public class RabbitMQConfig {
     private String errorRoutingKey;
 
     @Bean
+    // Configura la cola principal como durable para conservar los eventos.
     Queue eventosAcademicosQueue() {
         return new Queue(queueName, true);
     }
 
     @Bean
+    // Reserva una cola separada para los mensajes reenviados con error.
     Queue eventosAcademicosErrorQueue() {
         return new Queue(errorQueueName, true);
     }
 
     @Bean
+    // Declara el exchange directo usado por el flujo.
     DirectExchange eventosAcademicosExchange() {
         return new DirectExchange(exchangeName, true, false);
     }
@@ -62,6 +66,7 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    // Publica mensajes persistentes y serializados como JSON.
     RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, MessageConverter rabbitMessageConverter) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(rabbitMessageConverter);

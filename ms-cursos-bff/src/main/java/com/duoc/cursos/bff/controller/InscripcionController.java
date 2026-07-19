@@ -29,6 +29,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/inscripciones")
+// Controlador REST que expone la gestion de inscripciones y sus evidencias.
 public class InscripcionController {
 
     private final InscripcionService inscripcionService;
@@ -70,6 +71,7 @@ public class InscripcionController {
     }
 
     @PostMapping("/{inscripcionId}/subir-s3")
+    // Recupera el archivo local y lo deja disponible como objeto en S3.
     public ResponseEntity<ArchivoResumenResponseDTO> subirArchivoAS3(@PathVariable Long inscripcionId) {
         Path archivo = resumenArchivoService.obtenerArchivoLocalOGenerar(inscripcionId);
         return ResponseEntity.ok(s3StorageService.subirArchivo(inscripcionId, archivo));
@@ -95,6 +97,7 @@ public class InscripcionController {
     }
 
     @PostMapping
+    // Ejecuta el flujo completo de inscripcion coordinado por el BFF.
     public ResponseEntity<ProcesoInscripcionResponseDTO> crear(@Valid @RequestBody InscripcionRequestDTO inscripcionRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(bffOrchestrationService.registrarInscripcion(inscripcionRequestDTO));
     }

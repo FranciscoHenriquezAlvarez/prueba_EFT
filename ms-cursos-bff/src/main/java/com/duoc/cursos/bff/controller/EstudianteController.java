@@ -18,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/estudiantes")
+// Controlador REST que expone la gestion basica de estudiantes.
 public class EstudianteController {
 
     private final EstudianteService estudianteService;
@@ -32,6 +33,7 @@ public class EstudianteController {
     }
 
     @PostMapping
+    // Registra estudiantes que despues podran relacionarse con IDaaS.
     public ResponseEntity<EstudianteResponseDTO> crear(@Valid @RequestBody EstudianteRequestDTO estudianteRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(estudianteService.guardar(estudianteRequestDTO));
     }

@@ -12,6 +12,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/bff")
+// Controlador REST que expone operaciones de orquestacion del BFF.
 public class BffOrchestrationController {
 
     private final BffOrchestrationService bffOrchestrationService;
@@ -21,6 +22,7 @@ public class BffOrchestrationController {
     }
 
     @PostMapping("/eventos/consumir")
+    // Solicita al consumidor el procesamiento manual de mensajes pendientes.
     public ResponseEntity<Map<String, Object>> consumirEventos(@RequestParam(defaultValue = "1") int cantidad,
                                                                @RequestHeader("Authorization") String authorization) {
         return ResponseEntity.ok(bffOrchestrationService.solicitarConsumoManual(cantidad, authorization));

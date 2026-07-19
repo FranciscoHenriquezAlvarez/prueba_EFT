@@ -12,6 +12,7 @@ import java.util.List;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
+// Servicio que administra examenes asociados a cada curso.
 public class ExamenService {
 
     private final ExamenRepository examenRepository;
@@ -22,6 +23,7 @@ public class ExamenService {
         this.cursoService = cursoService;
     }
 
+    // Registra el examen sobre un curso academico ya existente.
     public ExamenResponseDTO crear(Long cursoId, ExamenRequestDTO requestDTO) {
         Examen examen = new Examen();
         examen.setCurso(cursoService.obtenerEntidad(cursoId));

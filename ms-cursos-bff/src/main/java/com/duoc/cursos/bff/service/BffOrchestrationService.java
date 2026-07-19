@@ -18,6 +18,7 @@ import java.util.Map;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
 @Service
+// Servicio que centraliza el flujo academico coordinado por el BFF.
 public class BffOrchestrationService {
 
     private final InscripcionService inscripcionService;
@@ -41,6 +42,7 @@ public class BffOrchestrationService {
         this.eventosConsumidorUrl = eventosConsumidorUrl;
     }
 
+    // Registra la inscripcion y encadena la generacion de sus evidencias.
     public ProcesoInscripcionResponseDTO registrarInscripcion(InscripcionRequestDTO requestDTO) {
         InscripcionResumenDTO inscripcion = inscripcionService.guardar(requestDTO);
         ArchivoResumenResponseDTO archivoResumen = resumenArchivoService.generarArchivo(inscripcion.getInscripcionId());
@@ -63,6 +65,7 @@ public class BffOrchestrationService {
         );
     }
 
+    // Reenvia el token para mantener la seguridad entre ambos microservicios.
     public Map<String, Object> solicitarConsumoManual(int cantidad, String authorizationHeader) {
         try {
             return restClientBuilder.baseUrl(eventosConsumidorUrl).build()

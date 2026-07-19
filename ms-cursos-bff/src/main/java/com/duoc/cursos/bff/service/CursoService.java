@@ -12,6 +12,7 @@ import java.util.List;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
+// Servicio que concentra las operaciones principales de los cursos.
 public class CursoService {
 
     private final CursoRepository cursoRepository;
@@ -32,6 +33,7 @@ public class CursoService {
         return convertirAResponseDTO(obtenerEntidad(id));
     }
 
+    // Crea el curso con los datos recibidos por la API.
     public CursoResponseDTO guardar(CursoRequestDTO cursoRequestDTO) {
         return convertirAResponseDTO(cursoRepository.save(aplicarDatos(new Curso(), cursoRequestDTO)));
     }

@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+// Servicio que procesa eventos academicos y guarda la evidencia del consumo MQ.
 public class EventoAcademicoConsumerService {
 
     private static final String ESTADO_PROCESADO = "PROCESADO";
@@ -58,6 +59,7 @@ public class EventoAcademicoConsumerService {
     }
 
     @Transactional
+    // Valida el mensaje, evita duplicados y persiste la evidencia del procesamiento.
     public ProcessingResult procesarMensaje(EventoAcademicoMensaje mensaje) {
         try {
             validarMensaje(mensaje);
@@ -91,6 +93,7 @@ public class EventoAcademicoConsumerService {
         return construirModoConsumoResponse(isAutomaticConsumptionActive());
     }
 
+    // Detiene o reactiva el listener para alternar el modo de consumo.
     public ConsumptionModeResponse cambiarModoConsumo(boolean automatico) {
         MessageListenerContainer container = getRequiredListenerContainer();
         if (automatico) {
@@ -108,6 +111,7 @@ public class EventoAcademicoConsumerService {
         );
     }
 
+    // Consume mensajes bajo demanda solo cuando el listener automatico esta detenido.
     public ManualConsumptionResponse consumirManualmente(int cantidadSolicitada) {
         if (isAutomaticConsumptionActive()) {
             return new ManualConsumptionResponse(
@@ -199,6 +203,7 @@ public class EventoAcademicoConsumerService {
         }
     }
 
+    // Registra el fallo localmente y lo reenvia a la cola de errores.
     private void registrarError(EventoAcademicoMensaje mensaje, Exception exception) {
         String payloadOriginal = serializarSeguro(mensaje);
         EventoAcademicoMq entidad = new EventoAcademicoMq();
@@ -229,6 +234,7 @@ public class EventoAcademicoConsumerService {
         rabbitTemplate.convertAndSend(exchange, errorRoutingKey, errorMensaje);
     }
 
+    // Recupera un mensaje inmediato desde la cola principal sin reintentos.
     private EventoAcademicoMensaje receiveMessage() {
         try {
             return rabbitTemplate.receiveAndConvert(
