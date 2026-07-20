@@ -48,7 +48,7 @@ public class ContenidoCursoService {
         this.contenidosPath = Paths.get(contenidosPath);
     }
 
-    // Guarda temporalmente el contenido y registra su ubicacion academica.
+    // Guarda temporalmente el contenido y registra su ubicacion.
     public ContenidoCursoResponseDTO crear(Long cursoId, String titulo, String descripcion, MultipartFile archivo) {
         if (archivo == null || archivo.isEmpty()) {
             throw new ResponseStatusException(BAD_REQUEST, "Debe adjuntar un archivo no vacio");
