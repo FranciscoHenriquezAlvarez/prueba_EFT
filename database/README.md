@@ -1,6 +1,6 @@
 # Scripts Oracle
 
-Estos scripts resumen la estructura academica final utilizada por el proyecto EFT.
+Scripts resumen estructura utilizada por el proyecto EFT.
 
 ## Archivos
 

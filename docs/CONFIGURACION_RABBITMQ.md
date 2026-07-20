@@ -15,6 +15,11 @@
 - `RABBITMQ_USER`
 - `RABBITMQ_PASS`
 
+## Arranque
+
+- El consumidor espera `service_healthy` sobre RabbitMQ.
+- El BFF depende de RabbitMQ saludable y del inicio del consumidor.
+
 ## Eventos
 
 - `INSCRIPCION_CREADA`

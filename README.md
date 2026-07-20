@@ -68,3 +68,5 @@ docker compose up -d
 - No se almacenan secretos reales en el repositorio.
 - La configuracion de API Gateway, Azure AD B2C y AWS debe completarse con valores reales del entorno.
 - La demostracion academica recomendada usa Postman como cliente principal.
+- `docker-compose.yml` queda orientado a ejecucion local y `docker-compose.ec2.yml` al despliegue en EC2.
+- El workflow de despliegue copia `docker-compose.ec2.yml` desde el repositorio.

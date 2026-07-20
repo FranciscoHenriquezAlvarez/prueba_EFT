@@ -13,6 +13,8 @@ docker compose config
 docker compose up -d
 ```
 
+`docker-compose.yml` se utiliza para la ejecucion local.
+
 ## Docker EC2
 
 ```bash
@@ -24,13 +26,17 @@ curl --fail http://localhost:8080/api/health
 curl --fail http://localhost:8081/api/health
 ```
 
+`docker-compose.ec2.yml` se utiliza como fuente  del despliegue en EC2. El consumidor espera que RabbitMQ se encuentre saludable y el BFF depende de RabbitMQ y del consumidor.
+
 ## Workflow
 
 Archivo: `.github/workflows/deploy.yml`
 
 Nombre esperado:
 
-- `Deploy EFT Semana 09`
+- `Deploy EFT`
+
+El pipeline copia `docker-compose.ec2.yml` desde el repositorio hacia EC2, genera solo el archivo `.env` remoto y luego ejecuta `pull`, `up`, `ps` y los health checks finales.
 
 ## GitHub Secrets
 
@@ -53,4 +59,4 @@ Nombre esperado:
 - `RABBITMQ_USER`
 - `RABBITMQ_PASS`
 
-[INSERTAR CAPTURA REAL: ejecucion del workflow y health checks]
+
