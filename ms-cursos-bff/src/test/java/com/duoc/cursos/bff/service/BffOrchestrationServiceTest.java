@@ -150,7 +150,7 @@ class BffOrchestrationServiceTest {
         );
 
         assertEquals(BAD_GATEWAY, exception.getStatusCode());
-        assertEquals("No fue posible comunicarse con el consumidor academico", exception.getReason());
+        assertEquals("No fue posible comunicarse con el consumidor", exception.getReason());
     }
 
     private InscripcionResumenDTO inscripcionResumen(Long id) {
