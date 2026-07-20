@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
-// Controlador REST que expone el estado basico del microservicio consumidor.
+// Controlador REST que expone el estado basico del microservicio.
 public class HealthController {
 
     @GetMapping("/api/health")

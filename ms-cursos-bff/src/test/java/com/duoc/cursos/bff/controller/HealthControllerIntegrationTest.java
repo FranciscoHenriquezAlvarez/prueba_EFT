@@ -23,6 +23,8 @@ class HealthControllerIntegrationTest {
     void debeResponderEstadoOkEnHealth() throws Exception {
         mockMvc.perform(get("/api/health"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("OK"));
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.service").value("ms-cursos-bff"))
+                .andExpect(jsonPath("$.timestamp").isNotEmpty());
     }
 }

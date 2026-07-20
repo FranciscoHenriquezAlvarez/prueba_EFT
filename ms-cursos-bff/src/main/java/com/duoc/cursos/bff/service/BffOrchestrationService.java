@@ -76,7 +76,7 @@ public class BffOrchestrationService {
                     .body(new ParameterizedTypeReference<>() {
                     });
         } catch (Exception exception) {
-            throw new ResponseStatusException(BAD_GATEWAY, "No fue posible comunicarse con el consumidor academico");
+            throw new ResponseStatusException(BAD_GATEWAY, "No fue posible comunicarse con el consumidor");
         }
     }
 }
