@@ -93,7 +93,7 @@ public class IntentoExamenService {
         intento.setFechaCalificacion(LocalDateTime.now());
         intento.setEstado("CALIFICADO");
 
-        intento = intentoExamenRepository.save(intento);
+        intentoExamenRepository.save(intento);
         eventoAcademicoPublisherService.publicarCalificacionRegistrada(intento.getId());
         return toResponse(intento);
     }

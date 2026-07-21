@@ -23,7 +23,9 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -130,6 +132,52 @@ class IntentoExamenServiceTest {
         assertEquals(new BigDecimal("6.5"), response.getNota());
         assertNotNull(response.getFechaCalificacion());
         verify(eventoAcademicoPublisherService).publicarCalificacionRegistrada(21L);
+    }
+
+    @Test
+    void debeCalificarSinDependerDeLaInstanciaRetornadaPorSave() {
+        IntentoExamenService service = new IntentoExamenService(
+                intentoExamenRepository,
+                examenService,
+                estudianteService,
+                inscripcionService,
+                eventoAcademicoPublisherService
+        );
+        IntentoExamen intentoCargado = intento(21L, "100");
+        CalificacionRequestDTO request = new CalificacionRequestDTO();
+        request.setPuntajeObtenido(new BigDecimal("85"));
+        request.setNota(new BigDecimal("6.2"));
+        request.setObservacion("Buen desarrollo de los contenidos evaluados");
+
+        when(intentoExamenRepository.findById(21L)).thenReturn(Optional.of(intentoCargado));
+        when(intentoExamenRepository.save(any(IntentoExamen.class))).thenAnswer(invocation -> {
+            IntentoExamen intentoGuardado = new IntentoExamen();
+            intentoGuardado.setId(((IntentoExamen) invocation.getArgument(0)).getId());
+            intentoGuardado.setEstado(((IntentoExamen) invocation.getArgument(0)).getEstado());
+            return intentoGuardado;
+        });
+
+        IntentoExamenResponseDTO response = service.calificar(21L, request);
+
+        assertEquals(21L, response.getId());
+        assertEquals(3L, response.getExamenId());
+        assertEquals(8L, response.getCursoId());
+        assertEquals(11L, response.getEstudianteId());
+        assertEquals("Ana", response.getNombreEstudiante());
+        assertEquals("CALIFICADO", response.getEstado());
+        assertEquals(new BigDecimal("85"), response.getPuntajeObtenido());
+        assertEquals(new BigDecimal("6.2"), response.getNota());
+        assertEquals("Buen desarrollo de los contenidos evaluados", response.getObservacionProfesor());
+        assertNotNull(response.getFechaCalificacion());
+
+        verify(intentoExamenRepository, times(1)).save(argThat(intento ->
+                "CALIFICADO".equals(intento.getEstado())
+                        && new BigDecimal("85").compareTo(intento.getPuntajeObtenido()) == 0
+                        && new BigDecimal("6.2").compareTo(intento.getNota()) == 0
+                        && "Buen desarrollo de los contenidos evaluados".equals(intento.getObservacionProfesor())
+                        && intento.getFechaCalificacion() != null
+        ));
+        verify(eventoAcademicoPublisherService, times(1)).publicarCalificacionRegistrada(21L);
     }
 
     @Test
